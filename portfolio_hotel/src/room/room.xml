@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="room">
+	<typeAlias alias="roomVO" type="room.RoomVO"/>
+	
+	<select id="list" parameterClass="roomVO" resultClass="roomVO">
+		SELECT *,
+			(select image from room_img where room_pk = room.no limit 0,1) as image
+		FROM room
+	</select>
+	
+	<select id="list_price" parameterClass="roomVO" resultClass="roomVO">
+		SELECT * ,
+			(select image from room_img where room_pk = room.no limit 0,1) as image
+		FROM room 
+		ORDER BY price DESC;
+	</select>
+	
+	<insert id="insert" parameterClass="roomVO">
+		INSERT INTO room (name, price, count, adult, kid, instruction, checkin_time,  
+							checkout_time, location, landscape, type, size)
+		VALUES (#name#, #price#, #count#, #adult#, #kid#, #instruction#, #checkin_time#,
+				#checkout_time#, #location#, #landscape#, #type#, #size#)
+				
+		<selectKey keyProperty="no" resultClass="Integer">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<select id="read" parameterClass="Integer" resultClass="roomVO">
+		SELECT * 
+		FROM room 
+		WHERE no=#no#
+	</select>
+	
+	<update id="update" parameterClass="roomVO">
+		UPDATE room SET
+			name=#name#, price=#price#, count=#count#, adult=#adult#, kid=#kid#, 
+			instruction=#instruction#, checkin_time=#checkin_time#, checkout_time=#checkout_time#, 
+			location=#location#, landscape=#landscape#, type=#type#, size=#size#
+		WHERE no=#no#
+	</update>
+	
+	<delete id="delete" parameterClass="roomVO">
+		DELETE 
+		FROM room 
+		WHERE no=#no#
+	</delete>	
+	
+	<insert id="insert_image" parameterClass="java.util.HashMap">
+		INSERT INTO room_img (image, room_pk) 
+		VALUES (#image#, #room_pk#)
+	</insert>
+	
+	<select id="list_image" parameterClass="Integer" resultClass="java.util.HashMap">
+		SELECT * 
+		FROM room_img 
+		WHERE room_pk=#room_pk#
+	</select>
+	
+	<delete id="delete_image" parameterClass="Integer">
+		DELETE 
+		FROM room_img 
+		WHERE no=#no#
+	</delete>
+	
+	
+	
+	<typeAlias alias="room_optVO" type="room.Room_optVO"/>
+	
+	<select id="list_opt" parameterClass="room_optVO" resultClass="room_optVO">
+		SELECT * 
+		FROM room_opt
+	</select>
+	
+	<insert id="insert_opt" parameterClass="room_optVO">
+		INSERT INTO room_opt (name, instruction, image, image_org, info, info_1, info_2, price)
+		VALUES (#name#, #instruction#, #image#, #image_org#, #info#, #info_1#, #info_2#, #price#)				
+		<selectKey keyProperty="no" resultClass="Integer">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<select id="read_opt" parameterClass="room_optVO" resultClass="room_optVO">
+		SELECT * 
+		FROM room_opt 
+		WHERE no=#no#
+	</select>
+	
+	<update id="update_opt" parameterClass="room_optVO">
+		UPDATE room_opt SET
+			name=#name#, instruction=#instruction#, info=#info#, info_1=#info_1#, info_2=#info_2#, price=#price#
+		WHERE no=#no#
+	</update>
+	
+	<delete id="delete_opt" parameterClass="room_optVO">
+		DELETE 
+		FROM room_opt 
+		WHERE no=#no#
+	</delete>
+	
+	
+	
+	
+	<typeAlias alias="room_serviceVO" type="room.Room_serviceVO"/>
+	
+	<select id="list_service" parameterClass="Integer" resultClass="java.util.HashMap">
+		SELECT * 
+		FROM room_service 
+		WHERE room_pk=#room_pk#
+	</select>
+	
+	<insert id="insert_service" parameterClass="java.util.HashMap">
+		INSERT INTO room_service (name, room_pk) 
+		VALUES (#name_s#, #room_pk#)
+	</insert>
+	
+	<update id="update_service" parameterClass="java.util.HashMap">
+		UPDATE room_service SET 
+		name=#name_s#, room_pk=#room_pk# where room_pk=#room_pk#
+	</update>
+	
+	<delete id="delete_service" parameterClass="Integer">
+		DELETE 
+		FROM room_service 
+		WHERE room_pk=#room_pk#
+	</delete>
+</sqlMap>

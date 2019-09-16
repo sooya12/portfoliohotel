@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dining_res">
+
+	<typeAlias alias="dining_resvo" type="dining_res.Dining_resVO" />
+	
+	<sql id="searchSql">		
+		<!-- WHERE 절 검색 -->
+		<dynamic prepend="where">
+		    no > 1
+			<isNotEqual property="sval" compareValue="" prepend="and">
+				<isEqual property="stype" compareValue="all" prepend="and">
+					( (member_name like '%$sval$%' ) or (dining_name like '%$sval$%' )					
+				</isEqual>
+				<isNotEqual property="stype" compareValue="all" prepend="and">
+					($stype$ like '%$sval$%' )
+				</isNotEqual>
+			</isNotEqual>
+		</dynamic>
+	</sql>
+
+	<select id="count" parameterClass="dining_resvo" resultClass="Integer">
+		select count(*) from dining_res
+	</select>
+
+	<select id="list" parameterClass="dining_resvo" resultClass="dining_resvo">
+		select no, dining_name, d_day, d_time, adult, kid, guest_lname, guest_fname
+		, guest_tel1, guest_tel2, guest_tel3 guest_email, regdate from dining_res
+		<include refid="searchSql" />
+		ORDER BY
+		<isEqual property="orderCond" compareValue="">
+			regdate DESC
+		</isEqual>
+		<isNotEqual property="orderCond" compareValue="">
+			<isEqual property="orderCond" compareValue="regdate_desc">
+				regdate DESC
+			</isEqual>
+			<isEqual property="orderCond" compareValue="regdate_asc">
+				regdate ASC
+			</isEqual>
+		</isNotEqual>
+		LIMIT $startPageNo$, $pageRows$
+	</select>
+	
+	<insert id="insert" parameterClass="dining_resvo">
+		insert into dining_res (
+								d_day, d_time, dining_name, adult, kid, 
+								guest_lname, guest_fname, guest_tel1, guest_tel2, guest_tel3, guest_email, 
+								regdate, price, total_price,
+								member_pk, dining_pk) 
+		values (
+				#d_day#, #d_time#, #dining_name#, #adult#, #kid#, 
+				#guest_lname#, #guest_fname#, #guest_tel1#, #guest_tel2#, #guest_tel3#, #guest_email#, 
+				now(), #price#, #total_price#,
+				#member_pk#, #dining_pk#)
+		<selectKey keyProperty="no" resultClass="Integer">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterClass="dining_resvo">
+        update dining_res set
+        	d_day=#d_day#, d_time=#d_time#, adult=#adult#, kid=#kid#, guest_lname=#guest_lname#,
+        	guest_fname=#guest_fname#, guest_tel1=#guest_tel1#, guest_tel2=#guest_tel2#, 
+        	guest_tel3=#guest_tel3#, guest_email=#guest_email#
+        where no=#no#
+    </update>
+    
+    <select id="read" parameterClass="Integer" resultClass="dining_resvo">
+		select no, d_day, d_time, guest_lname, guest_fname, guest_tel1, guest_tel2, guest_tel3, dining_name, adult, kid, regdate, total_price
+		from dining_res where no=#no#
+	</select>
+    
+    <delete id="delete" parameterClass="Integer">
+		delete from dining_res where no=#no#
+	</delete>
+
+	<select id="read_list" parameterClass="Integer" resultClass="dining_resvo">
+		SELECT * FROM dining_res
+		WHERE member_pk=#member_pk#
+	</select>
+	
+</sqlMap>
+
+
+
+
+
+
+

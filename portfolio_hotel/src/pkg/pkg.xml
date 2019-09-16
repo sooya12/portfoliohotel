@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pkg">
+    
+    <typeAlias alias="pkg_vo" type="pkg.PkgVO"/>
+    
+	<sql id="searchSql">		
+		<!-- WHERE 절 검색 -->
+		<dynamic prepend="where"> <!-- prepend:자동으로 ""안의 문자가 앞에 붙게끔 -->
+			1=1
+		    <!-- <isNotEqual property="member" compareValue="0">
+		    	and member = #member#
+		    </isNotEqual>			
+		    <isNotEqual property="display" compareValue="0">
+		    	and display = #display#
+		    </isNotEqual>
+		    <isNotEqual property="top" compareValue="0">
+		    	and top = #top#
+		    </isNotEqual> -->    		    
+			<isNotEqual property="sval" compareValue="">
+				<isEqual property="stype" compareValue="all" prepend="and">
+					and ( (ename like '%$sval$%' ) or (startdate like '%$sval$%' ) or (enddate like '%$sval$%')) 					
+				</isEqual>
+				<isNotEqual property="stype" compareValue="all" prepend="and">
+					and ($stype$ like '%$sval$%' )
+				</isNotEqual>
+			</isNotEqual>
+		</dynamic>
+	</sql>    
+    
+	<!-- 해당 테이블의 총 게시글 수 -->
+	<select id="count" parameterClass="pkg_vo" resultClass="Integer">
+        select count(*) from pkg	
+        <include refid="searchSql"/>
+    </select>
+    
+	<select id="list" parameterClass="pkg_vo" resultClass="pkg_vo">
+        select *
+        from pkg
+        <include refid="searchSql"/>
+		ORDER BY regdate ASC LIMIT $startPageNo$, $pageRows$
+    </select>
+
+	<select id="list2" parameterClass="pkg_vo" resultClass="pkg_vo">
+        select *
+        from pkg
+		ORDER BY regdate ASC LIMIT $startPageNo$, $pageRows$
+    </select>
+    
+	<!-- 해당 테이블에 게시글 작성 -->
+    <insert id="insert" parameterClass="pkg_vo">
+        INSERT INTO pkg (
+        	kname, ename, intro, intro_detail, startdate, enddate, pkg, price, 
+        	event, guide, regdate
+        ) VALUES (
+        	#kname#, #ename#, #intro#, #intro_detail#, #startdate#, #enddate#, #pkg#, #price#, 
+        	#event#, #guide#, now()
+        )
+        <selectKey keyProperty="no" resultClass="Integer">
+        	SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+    
+    <select id="read" parameterClass="Integer" resultClass="pkg_vo">
+        select * FROM pkg where no=#no#
+    </select>
+    
+    <update id="update" parameterClass="pkg_vo">
+        update pkg set
+        	kname=#kname#, ename=#ename#, intro=#intro#, intro_detail=#intro_detail#, startdate=#startdate#, 
+        	enddate=#enddate#, pkg=#pkg#, price=#price#, event=#event#, guide=#guide#
+        where no=#no#
+    </update>
+    
+    <delete id="delete" parameterClass="Integer">
+        delete from pkg where no=#no#
+    </delete>
+    
+</sqlMap>

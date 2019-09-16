@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="member">
+    
+    <typeAlias alias="membervo" type="board.member.MemberVO"/>
+    
+    
+    
+    <!-- 공통조건 -->
+	 <sql id="searchSql">		
+		
+		<dynamic prepend="where">
+		1=1
+			<isNotEqual property="sval" compareValue="" prepend="and">
+				<isEqual property="stype" compareValue="all" prepend="and">
+					( (name like '%$sval$%' ) or (email like '%$sval$%' ) or (secession like '%$sval$%' )) 					
+				</isEqual>
+				<isNotEqual property="stype" compareValue="all" prepend="and">
+					($stype$ like '%$sval$%' ) <!--  문자그대로 들어가야하기 떄문에 #사용x --> 
+				</isNotEqual>
+			</isNotEqual>
+		</dynamic>
+	</sql> 
+	
+	<select id="count" parameterClass="membervo" resultClass="Integer">
+        select count(*) from member
+        <include refid="searchSql"/>
+    </select>
+	
+    <select id="list" parameterClass="membervo" resultClass="membervo">
+        select * from member
+        <include refid="searchSql"/>
+		ORDER BY no DESC LIMIT $startPageNo$, $pageRows$	
+    </select>
+    
+    <insert id="insert" parameterClass="membervo" >
+        insert into member
+        	(email, password, f_name, l_name, gender,f_tel, m_tel, l_tel, birthday_year,birthday_month,birthday_day,regdate,zipcode,addr,
+        	 addr_detail,point,grade,sns_type,sns_key,secession,secession_reason) 
+        	 
+        values
+        	(#email#, md5(#password#), #f_name#, #l_name#, #gender#, #f_tel#, #m_tel#, #l_tel#, #birthday_year#, #birthday_month#, #birthday_day#,now(),#zipcode#,#addr#,
+        	 #addr_detail#,#point#,#grade#,#sns_type#,#sns_key#,#secession#,#secession_reason#)
+        	 
+        <selectKey keyProperty="no" resultClass="Integer">
+			SELECT  LAST_INSERT_ID()
+		</selectKey>
+    </insert>
+    
+    <insert id="insertSns" parameterClass="membervo" >
+        insert into member
+        	(email, f_name,l_name, gender,regdate,
+        	 point,grade,sns_type,sns_key,secession) 
+        	 
+        values
+        	(#email#, '', #l_name#, #gender#, now(),
+        	 0,0,#sns_type#,#sns_key#,0)
+        	 
+        <selectKey keyProperty="no" resultClass="Integer">
+			SELECT  LAST_INSERT_ID()
+		</selectKey>
+    </insert>
+    
+ <!--    <insert id="naverCallback" parameterClass="membervo">
+    	insert into member
+    	(email, password,l_name,gender,birthday_month, birthday_day,sns_type )    	
+    	values
+    	(#email#, md5(#password#), #l_name, #gender#,#birthday_month#, #birthday_day#,#sns_type#)
+    	<selectKey keyProperty="no" resultClass="Integer">
+			SELECT  LAST_INSERT_ID()
+		</selectKey>
+    	
+    </insert>  -->
+    
+    
+    <update id="update" parameterClass="membervo">
+        update member set
+        	<!-- <isNotEqual property="password" compareValue="">
+        	    password = md5(#password#),
+        	</isNotEqual> -->
+        	 f_name=#f_name#,l_name=#l_name#, birthday_year=#birthday_year#,birthday_month=#birthday_month#,
+        	 birthday_day=#birthday_day#,f_tel=#f_tel#,l_tel=#l_tel#, addr=#addr#, zipcode=#zipcode#, addr_detail=#addr_detail#
+        where no=#no#
+        
+    </update>
+    
+    
+   <update id="password" parameterClass="membervo">
+        update member set
+        	password=md5(#password#) where no=#no#
+    </update> 
+    
+    <update id="delete_account" parameterClass="membervo">
+        update member set
+        	secession=1, secession_reason=#secession_reason# where no=#no#
+    </update> 
+    
+    <select id="find_email" parameterClass="membervo" resultClass="String">
+    	select email from member where f_name=#f_name# and l_name=#l_name# and 
+    				birthday_year=#birthday_year# and birthday_month=#birthday_month# and birthday_day=#birthday_day#
+    				and f_tel=#f_tel# and m_tel=#m_tel# and l_tel=#l_tel# 
+    </select>
+    
+    <select id="checkInfo" parameterClass="membervo" resultClass="Integer">
+    	select ifnull((select ifnull(no,0) from member where email=#email# and f_name=#f_name# and l_name=#l_name# and 
+    				birthday_year=#birthday_year# and birthday_month=#birthday_month# and birthday_day=#birthday_day#
+    				and f_tel=#f_tel# and m_tel=#m_tel# and l_tel=#l_tel# ),0) as cnt
+    
+    </select>
+    
+    <update id="find_pw_change" parameterClass="membervo">
+    	update member set password = md5(#password#) where no=#no# 
+    
+    </update>
+    
+   
+    
+    
+    <select id="checkPassword" parameterClass="membervo" resultClass="Integer">
+    	select count(*) from member where no=#no# and password=md5(#password#)
+    </select>
+   
+    
+      <!-- <update id="memberEdit" parameterClass="membervo">
+        update member set
+        	<isNotEqual property="password" compareValue="">
+        	    password = md5(#password#),
+        	</isNotEqual>
+        	 name=#name#, birthday=#birthday#,tel=#tel#, addr=#addr#, zipcode=#zipcode#, addr_detail=#addr_detail#
+        where no=#no#
+    </update> -->
+    
+    <delete id="delete" parameterClass="Integer">
+        delete from member where no=#no#
+    </delete>
+     
+    <select id="read" parameterClass="Integer" resultClass="membervo">
+    	select * from member where no=#no#
+    	<!-- <![CDATA[
+        select no, id, password, 
+        	name, regdate,
+        	ifnull((select max(no) from member where no>1 and no<#no#), 0) as prev_no,
+        	ifnull((select min(no) from member where no>1 and no>#no#), 0) as next_no
+         from member where no>1 and no=#no#
+         ]]> -->
+    </select>
+    
+
+    
+     
+    <select id="emailcheck" parameterClass="String" resultClass="Integer">
+        select count(*) as cnt from member where email=#email#
+        
+    </select>
+    
+    <select id="loginCheck" parameterClass="membervo" resultClass="Integer">
+        select count(*) as cnt from member where email=#email# and password=md5(#password#) and secession=0
+        
+    </select>
+    
+    <update id="logindate" parameterClass="membervo">
+    	update member set logindate=now() where no=#no#
+    </update>
+    
+    <select id="loginSessionInfo" parameterClass="membervo" resultClass="membervo">
+        select * from member where email=#email# and password=md5(#password#) and secession=0
+    </select>
+    
+     <select id="emailSrc" parameterClass="membervo" resultClass="Integer">
+        select count(*) as cnt from member where email=#email# and password=md5(#password#)
+    </select>
+    
+    <select id="snsCheck" parameterClass="membervo" resultClass="membervo">
+        select * from member where email=#email# and sns_type=#sns_type# and sns_key=#sns_key#
+    </select>
+    
+    <!-- 
+        관리자 로그인 접속 기록
+    <sql id="historySearchSql">
+		WHERE 절 검색
+		<dynamic prepend="where">
+		    id != 'vizensoft'
+			<isNotEqual property="sval" compareValue="">
+				<isEqual property="stype" compareValue="all">
+					and ( (name like '%$sval$%' ) or (id like '%$sval$%' )) 					
+				</isEqual>
+				<isNotEqual property="stype" compareValue="all">
+					and ($stype$ like '%$sval$%' )
+				</isNotEqual>
+			</isNotEqual>
+		</dynamic>
+	</sql>
+	
+    <select id="countLoginHistory" parameterClass="param" resultClass="Integer">
+        select count(*) from admin_loginhistory
+        <include refid="historySearchSql"/>	
+    </select>
+    
+    <select id="listLoginHistory" parameterClass="param" resultClass="vo">
+        select * from admin_loginhistory
+        <include refid="historySearchSql"/>
+		ORDER BY no DESC LIMIT $startPageNo$, $pageRows$	
+    </select>
+    
+    <insert id="insertLoginHistory" parameterClass="vo" >
+        insert into admin_loginhistory
+        	(id, name, logindate, ip)
+        values
+        	(#id#, #name#, now(), #ip#)
+    </insert> -->
+    
+    
+    <update id="grade" parameterClass="membervo">
+    	UPDATE member SET grade=$grade$ 
+    	WHERE no=$no$
+    </update>
+</sqlMap>

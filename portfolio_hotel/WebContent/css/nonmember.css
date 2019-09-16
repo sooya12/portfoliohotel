@@ -1,0 +1,38 @@
+@charset "UTF-8";
+
+#container {background-image: url("../img/sign_in_img/sign_in-bg.jpg");
+            background-repeat: no-repeat; background-size:cover; width:100%; height:1080px;
+            background-attachment: fixed;
+            background-position-y: -85px;}
+
+.nonmember-section {width:700px; margin:0 auto; padding-top:300px;}
+.nonmember-section h2 {text-align:center; color:#fff; font-size:34px; font-weight:500; position: relative; z-index:30; margin-bottom:5px;}
+.nonmember-section h3 {text-align:center; color:#fff; font-size:22px; font-weight:300; margin-bottom:55px; position: relative;  z-index:30;}
+
+/* 로그인박스 */
+.nonmember-box {width:700px;background-color: rgba(0, 0, 0,0.9);
+            	padding-top:50px; padding-bottom:20px; position: relative; border-radius:15px;}
+.nonmember-box-logo {position: absolute; top:-34px; left:15px;}
+.nonmember-box #reslist {padding-left:50px; padding-right:50px; color:#ffffff; text-align:left;}
+.nonmember-box #reslist .room {width:100%; height:100px;}
+.nonmember-box #reslist .option {width:100%; height:100px;}
+.nonmember-box #reslist .option td {float:left;}
+
+.nonmember form {padding-left:85px;}
+
+.nonmember-box .nonmember-board-right .nonmember_cancelBtn {width:91px; height:41px; background-color:#0e693f; text-align:center; line-height:41px; border:none; 
+															color:#fff; font-size:15px; font-weight: 500; border-radius:5px; float:right;}
+
+.nonmember-board {width:560px; margin:0 auto;}
+.nonmember-board > div {float:left;}
+.nonmember-board .nonmember-box-left {width:447px; margin-bottom:20px;}
+.nonmember-board .nonmember-box-left input {width:435px; height:40px; background-color:transparent; margin-bottom:10px; border:1px solid rgba(255, 255, 255, 0.5); padding-left:12px; color:#fff; font-size:16px; border-radius:5px;}
+.nonmember-board .nonmember-box-left input::placeholder {color:#fff; font-size:14px; font-weight:200;}
+.nonmember-board .nonmember-board-right {width:100px; margin-left:12px;}
+.nonmember-board .nonmember-board-right input {width:91px; height:91px; background-color:#0e693f; text-align:center; line-height:91px; border:none; 
+												color:#fff; font-size:18px; font-weight: 500; border-radius:5px;}
+.nonmember-board .nonmember-board-right input:hover {background-color:rgba(14,105,63,0.8);}
+
+.nonmember-board {width:560px; margin:0 auto;}
+.nonmember-board > div {float:left;}
+
